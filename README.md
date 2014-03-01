@@ -2,6 +2,12 @@ Angular WebSql Service
 ====================
 Helps you generating websql simple queries without writing any sql code.
 
+Setup
+---------------------
+1. `bower install angular-websql`
+2. Include the `angular-websql.js` script, and this script's dependencies are included in your app.
+3. Add `paulocaldeira17.angular.websql` as a module dependency to your app.
+
 Methods
 ---------------------
 ### Create Table
