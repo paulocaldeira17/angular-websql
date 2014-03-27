@@ -11,7 +11,7 @@ Setup
 Usage
 ---------------------
 1- Add ```$webSql``` provider to a controller.  
-2- Open a database. See [method]().  
+2- Open a database. See [method](#open-database).  
 3- Use returned database object's methods.
 
 Methods
