@@ -20,7 +20,7 @@ Methods
 #### `createTable(string tableName, object fields, [callback])`
 #### Example:
 ```javascript
-$scope.db = $webSql.openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024);```  
+$scope.db = $webSql.openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024); 
 ```
 1- Database name  
 2- Version number  
