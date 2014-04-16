@@ -1,20 +1,49 @@
 Angular WebSql Service
 ====================
-Helps you generating websql simple queries without writing any sql code.
+Helps you generate websql simple queries and run them without writing any sql code.
 
 Setup
 ---------------------
 1. `bower install angular-websql`
-2. Include the `angular-websql.js` script, and this script's dependencies are included in your app.
-3. Add `paulocaldeira17.angular.websql` as a module dependency to your app.
+2. Include the `angular-websql.min.js` and angular itself.
+3. Add `angular-websql` as a module dependency to your app.
+
+Usage
+---------------------
+1- Add ```$webSql``` provider to a controller.  
+2- Open a database. See [method](#open-database).  
+3- Use returned database object's methods.
 
 Methods
 ---------------------
-### Create Table
-#### `Websql.createTable(string tableName, object fields)`
+### Open Database
+#### `createTable(string tableName, object fields, [callback])`
 #### Example:
 ```javascript
-Websql.createTable('user', {
+$scope.db = $webSql.openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024); 
+```
+1- Database name  
+2- Version number  
+3- Text description  
+4- Size of database  
+
+#### Returns
+An object, containing database operation methods, is returned with ```openDatabase``` method.
+All methods has optional callback parameter which takes query result object as parameter.  
+These methods are:  
+- [createTable()](#create-table)  
+- [dropTable()](#drop-table)  
+- [update()](#update)  
+- [delete()](#delete)  
+- [select()](#select)  
+- [selectAll()](#select-all)  
+
+## Database Methods
+### Create Table
+#### `createTable(string tableName, object fields, [callback])`
+#### Example:
+```javascript
+createTable('user', {
   "id":{
     "type": "INTEGER",
     "null": "NOT NULL",
@@ -41,21 +70,23 @@ Websql.createTable('user', {
 })
 ```
 ### Drop Table
-#### `Websql.dropTable(string tableName)`
+#### `dropTable(string tableName, [callback])`
 ### Insert
-#### `Websql.insert(string tableName, object fields)`
+#### `insert(string tableName, object fields, [callback])`
 #### Example:
 ```javascript 
-Websql.insert('user', {"username": 'pc', "password": '1234', 'age': 22})
+$scope.db.insert('user', {"username": 'pc', "password": '1234', 'age': 22}, function(results) {
+  console.log(results.insertId);
+})
 ```
 ```sql 
 INSERT INTO user (username, password, age) VALUES('pc', '1234', 22)
 ```
 ### Update
-#### `Websql.update(string tableName, object fields)`
+#### `update(string tableName, object fields, [callback])`
 #### Examples:
 ```javascript 
-Websql.update("user", {"username": 'paulo.caldeira'}, {
+$scope.db.update("user", {"username": 'paulo.caldeira'}, {
   'id': 1
 })
 ```
@@ -63,7 +94,7 @@ Websql.update("user", {"username": 'paulo.caldeira'}, {
 UPDATE user SET username='paulo.caldeira' WHERE id=1
 ```
 ```javascript 
-Websql.update("user", {"age": 23}, {
+$scope.db.update("user", {"age": 23}, {
   "username": {
     "operator":'LIKE',
     "value":'paulo.*'
@@ -76,31 +107,43 @@ Websql.update("user", {"age": 23}, {
 UPDATE user SET age=23 WHERE username LIKE 'paulo.*' AND age=22
 ```
 ### Delete
-#### `Websql.delete(string tableName, object where)`
+#### `delete(string tableName, object where, [callback])`
 ```javascript 
-Websql.del("user", {"id": 1})
+$scope.db.del("user", {"id": 1})
 ```
 ```sql 
 DELETE user WHERE id=1
 ```
 ### Select
-### `Websql.select(string tableName, object where)`
+#### `select(string tableName, object where, [callback])`
 ```javascript 
-Websql.select("user", {
+$scope.db.select("user", {
   "age": {
     "value":'IS NULL',
     "union":'AND'
   },
   "username":'IS NOT NULL'
+}, function(results) {
+  $scope.users = [];
+  for(i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+  $scope.$apply();
 })
 ```
 ```sql 
 SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL
 ```
-
-### `Websql.selectAll(string tableName)`
+### Select All
+#### `selectAll(string tableName, [callback])`
 ```javascript 
-Websql.selectAll("user")
+$scope.db.selectAll("user", function(results) {
+  $scope.users = [];
+  for(i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+  $scope.$apply();
+})
 ```
 ```sql 
 SELECT * FROM user
