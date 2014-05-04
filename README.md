@@ -17,7 +17,7 @@ Usage
 Methods
 ---------------------
 ### Open Database
-#### `createTable(string tableName, object fields, [callback])`
+#### `$webSql.openDatabase(dbName, version, desc, size)`
 #### Example:
 ```javascript
 $scope.db = $webSql.openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024); 
