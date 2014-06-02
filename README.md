@@ -46,7 +46,7 @@ These methods are:
 createTable('user', {
   "id":{
     "type": "INTEGER",
-    "null": "NOT NULL",
+    "null": "NOT NULL", // default is "NULL"
     "primary": true, // primary
     "auto_increment": true // auto increment
   },
@@ -150,4 +150,4 @@ SELECT * FROM user
 ```
 Operators
 ---------------------
-Your can use common operators like `=`, `>=`, `<=` and `LIKE`. You can use also `NULL` and `NOT NULL` as condition values.
+Your can use common operators like `=`, `>=`, `<=` and `LIKE`. You can use also `IS NULL` and `NOT NULL` as condition values.

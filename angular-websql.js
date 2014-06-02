@@ -93,6 +93,7 @@ angular.module("angular-websql", []).factory("$webSql", [
                 for (var e in g) {
                   var l = "{type} {null}";
                   a += "`" + e + "` ";
+                  if(typeof g[e]["null"]==="undefined") g[e]["null"]="NULL";
                   for (var k in g[e]) {
                     l = l.replace(new RegExp("{" + k + "}", "ig"), g[e][k])
                   }
@@ -120,6 +121,7 @@ angular.module("angular-websql", []).factory("$webSql", [
                 for (var f in d) {
                   b = b.replace(new RegExp("{" + f + "}", "ig"), d[f])
                 }
+                console.log(b);
                 this.executeQuery(b, callback);
                 return this;
               },
