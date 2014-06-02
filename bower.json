@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Helps you generating websql simple queries without writing any sql code.",
   "author": "Paulo Caldeira",
-  "main": "./dist/angular-websql.min.js",
+  "main": "./angular-websql.min.js",
   "license": "MIT",
   "homepage": "https://github.com/paulocaldeira17/angular-websql",
   "dependencies": {
