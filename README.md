@@ -46,7 +46,7 @@ These methods are:
 createTable('user', {
   "id":{
     "type": "INTEGER",
-    "null": "NOT NULL", // default is "NULL"
+    "null": "NOT NULL", // default is "NULL" (if not defined)
     "primary": true, // primary
     "auto_increment": true // auto increment
   },
@@ -64,8 +64,7 @@ createTable('user', {
     "null": "NOT NULL"
   },
   "age": {
-    "type": "INTEGER",
-    "null": "NOT NULL"
+    "type": "INTEGER"
   }
 })
 ```
