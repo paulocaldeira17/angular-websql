@@ -13,9 +13,9 @@ angular.module("angular-websql", []).factory("$webSql", [
             if (typeof(openDatabase) == "undefined")
               throw "Browser does not support web sql";
             return {
-              executeQuery: function(query, callback) {
+              executeQuery: function(query, values, callback) {
                 db.transaction(function(tx) {
-                  tx.executeSql(query, [], function(tx, results) {
+                  tx.executeSql(query, values, function(tx, results) {
                     if (callback)
                       callback(results);
                   });
@@ -23,32 +23,36 @@ angular.module("angular-websql", []).factory("$webSql", [
                 return this;
               },
               insert: function(c, e, callback) {
-                var f = "INSERT INTO `{tableName}` ({fields}) VALUES({values}); ";
+                var f = "INSERT INTO `{tableName}` ({fields}) VALUES({values});";
                 var a = "",
-                b = "";
+                b = "",
+                v = [];
                 for (var d in e) {
                   a += (Object.keys(e)[Object.keys(e).length - 1] == d) ? "`" + d + "`" : "`" + d + "`, ";
-                  b += (Object.keys(e)[Object.keys(e).length - 1] == d) ? "'" + e[d] + "'" : "'" + e[d] + "', "
+                  b += (Object.keys(e)[Object.keys(e).length - 1] == d) ? "?" : "?, ";
+                  v.push(e[d]);
                 }
                 this.executeQuery(this.replace(f, {
                   "{tableName}": c,
                   "{fields}": a,
                   "{values}": b
-                }), callback);
+                }), v, callback);
                 return this;
               },
               update: function(b, g, c, callback) {
                 var f = "UPDATE `{tableName}` SET {update} WHERE {where}; ";
                 var e = "";
+                var v = [];
                 for (var d in g) {
-                  e += "`" + d + "`='" + g[d] + "'"
+                  e += "`" + d + "`= ?";
+                  v.push(g[d]);
                 }
                 var a = this.whereClause(c);
                 this.executeQuery(this.replace(f, {
                   "{tableName}": b,
                   "{update}": e,
                   "{where}": a
-                }), callback);
+                }), v, callback);
                 return this;
               },
               del: function(b, c, callback) {
@@ -57,7 +61,7 @@ angular.module("angular-websql", []).factory("$webSql", [
                 this.executeQuery(this.replace(d, {
                   "{tableName}": b,
                   "{where}": a
-                }), callback);
+                }), [], callback);
                 return this;
               },
               select: function(b, c, callback) {
@@ -66,11 +70,11 @@ angular.module("angular-websql", []).factory("$webSql", [
                 this.executeQuery(this.replace(d, {
                   "{tableName}": b,
                   "{where}": a
-                }), callback);
+                }), [], callback);
                 return this;
               },
               selectAll: function(a, callback) {
-                this.executeQuery("SELECT * FROM `" + a + "`; ", callback);
+                this.executeQuery("SELECT * FROM `" + a + "`; ", [], callback);
                 return this;
               },
               whereClause: function(b, callback) {
@@ -122,11 +126,11 @@ angular.module("angular-websql", []).factory("$webSql", [
                   b = b.replace(new RegExp("{" + f + "}", "ig"), d[f])
                 }
                 console.log(b);
-                this.executeQuery(b, callback);
+                this.executeQuery(b, [], callback);
                 return this;
               },
               dropTable: function(a, callback) {
-                this.executeQuery("DROP TABLE IF EXISTS `" + a + "`; ", callback);
+                this.executeQuery("DROP TABLE IF EXISTS `" + a + "`; ", [], callback);
                 return this;
               },
             };
