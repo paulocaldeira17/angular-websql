@@ -2,6 +2,7 @@
  * angular-websql
  * Helps you generate and run websql queries with angular services.
  * © MIT License
+ * @version  1.0.1
  */
 "use strict";
 angular.module("angular-websql", []).factory("$webSql", [
@@ -13,9 +14,10 @@ angular.module("angular-websql", []).factory("$webSql", [
             if (typeof(openDatabase) == "undefined")
               throw "Browser does not support web sql";
             return {
-              executeQuery: function(query, callback) {
+              executeQuery: function(query, values, callback) {
+                console.log(query, values);
                 db.transaction(function(tx) {
-                  tx.executeSql(query, [], function(tx, results) {
+                  tx.executeSql(query, values, function(tx, results) {
                     if (callback)
                       callback(results);
                   });
@@ -23,32 +25,36 @@ angular.module("angular-websql", []).factory("$webSql", [
                 return this;
               },
               insert: function(c, e, callback) {
-                var f = "INSERT INTO `{tableName}` ({fields}) VALUES({values}); ";
+                var f = "INSERT INTO `{tableName}` ({fields}) VALUES({values});";
                 var a = "",
-                b = "";
+                b = "",
+                v = [];
                 for (var d in e) {
                   a += (Object.keys(e)[Object.keys(e).length - 1] == d) ? "`" + d + "`" : "`" + d + "`, ";
-                  b += (Object.keys(e)[Object.keys(e).length - 1] == d) ? "'" + e[d] + "'" : "'" + e[d] + "', "
+                  b += (Object.keys(e)[Object.keys(e).length - 1] == d) ? "?" : "?, ";
+                  v.push(e[d]);
                 }
                 this.executeQuery(this.replace(f, {
                   "{tableName}": c,
                   "{fields}": a,
                   "{values}": b
-                }), callback);
+                }), v, callback);
                 return this;
               },
               update: function(b, g, c, callback) {
                 var f = "UPDATE `{tableName}` SET {update} WHERE {where}; ";
                 var e = "";
+                var v = [];
                 for (var d in g) {
-                  e += "`" + d + "`='" + g[d] + "'"
+                  e += "`" + d + "`= ?";
+                  v.push(g[d]);
                 }
                 var a = this.whereClause(c);
                 this.executeQuery(this.replace(f, {
                   "{tableName}": b,
                   "{update}": e,
-                  "{where}": a
-                }), callback);
+                  "{where}": a.w
+                }), v.concat(a.p), callback);
                 return this;
               },
               del: function(b, c, callback) {
@@ -56,8 +62,8 @@ angular.module("angular-websql", []).factory("$webSql", [
                 var a = this.whereClause(c);
                 this.executeQuery(this.replace(d, {
                   "{tableName}": b,
-                  "{where}": a
-                }), callback);
+                  "{where}": a.w
+                }), a.p, callback);
                 return this;
               },
               select: function(b, c, callback) {
@@ -65,20 +71,34 @@ angular.module("angular-websql", []).factory("$webSql", [
                 var a = this.whereClause(c);
                 this.executeQuery(this.replace(d, {
                   "{tableName}": b,
-                  "{where}": a
-                }), callback);
+                  "{where}": a.w
+                }), a.p, callback);
                 return this;
               },
               selectAll: function(a, callback) {
-                this.executeQuery("SELECT * FROM `" + a + "`; ", callback);
+                this.executeQuery("SELECT * FROM `" + a + "`; ", [], callback);
                 return this;
               },
               whereClause: function(b, callback) {
-                var a = "";
+                var a = "",
+                v = [];
                 for (var c in b) {
-                  a += (typeof b[c] === "object") ? (typeof b[c]["union"] === "undefined") ? (typeof b[c]["value"] === "string" && b[c]["value"].match(/NULL/ig)) ? "`" + c + "` " + b[c]["value"] : "`" + c + "` " + b[c]["operator"] + " '" + b[c]["value"] + "'" : (typeof b[c]["value"] === "string" && b[c]["value"].match(/NULL/ig)) ? "`" + c + "` " + b[c]["value"] + " " + b[c]["union"] + " " : "`" + c + "` " + b[c]["operator"] + " '" + b[c]["value"] + "' " + b[c]["union"] + " " : (typeof b[c] === "string" && b[c].match(/NULL/ig)) ? "`" + c + "` " + b[c] : "`" + c + "`='" + b[c] + "'"
+                  if(typeof b[c] !== "undefined" && typeof b[c] !== "object" && typeof b[c] === "string" && !b[c].match(/NULL/ig)) v.push(b[c]);
+                  else if(typeof b[c] !== "undefined" && typeof b[c] !== "object" && typeof b[c] === "number") v.push(b[c]);
+                  else if(typeof b[c]["value"] !== "undefined" && typeof b[c] === "object" && !b[c]["value"].match(/NULL/ig)) v.push(b[c]["value"]);
+                  a += (typeof b[c] === "object") ? 
+                          (typeof b[c]["union"] === "undefined") ? 
+                            (typeof b[c]["value"] === "string" && b[c]["value"].match(/NULL/ig)) ? 
+                              "`" + c + "` " + b[c]["value"] : 
+                              "`" + c + "` " + b[c]["operator"] + " ? " : 
+                            (typeof b[c]["value"] === "string" && b[c]["value"].match(/NULL/ig)) ? 
+                              "`" + c + "` " + b[c]["value"] + " " + b[c]["union"] + " " : 
+                              "`" + c + "` " + b[c]["operator"] + " ? " + b[c]["union"] + " " : 
+                          (typeof b[c] === "string" && b[c].match(/NULL/ig)) ? 
+                            "`" + c + "` " + b[c] : 
+                            "`" + c + "`=?"
                 }
-                return a;
+                return {w:a,p:v};
               },
               replace: function(a, c, callback) {
                 for (var b in c) {
@@ -121,12 +141,11 @@ angular.module("angular-websql", []).factory("$webSql", [
                 for (var f in d) {
                   b = b.replace(new RegExp("{" + f + "}", "ig"), d[f])
                 }
-                console.log(b);
-                this.executeQuery(b, callback);
+                this.executeQuery(b, [], callback);
                 return this;
               },
               dropTable: function(a, callback) {
-                this.executeQuery("DROP TABLE IF EXISTS `" + a + "`; ", callback);
+                this.executeQuery("DROP TABLE IF EXISTS `" + a + "`; ", [], callback);
                 return this;
               },
             };

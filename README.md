@@ -96,7 +96,7 @@ UPDATE user SET username='paulo.caldeira' WHERE id=1
 $scope.db.update("user", {"age": 23}, {
   "username": {
     "operator":'LIKE',
-    "value":'paulo.*'
+    "value":'paulo.*',
     "union":'AND' // condition suffix
   },
   "age": 22
@@ -138,7 +138,7 @@ SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL
 ```javascript 
 $scope.db.selectAll("user", function(results) {
   $scope.users = [];
-  for(i=0; i < results.rows.length; i++){
+  for(var i=0; i < results.rows.length; i++){
     $scope.users.push(results.rows.item(i));
   }
   $scope.$apply();
@@ -150,3 +150,9 @@ SELECT * FROM user
 Operators
 ---------------------
 Your can use common operators like `=`, `>=`, `<=` and `LIKE`. You can use also `IS NULL` and `NOT NULL` as condition values.
+
+Changelog
+---------------------
+### 1.0.1
+
+- escape single quote or double quotes value(s)
