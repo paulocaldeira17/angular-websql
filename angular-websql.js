@@ -2,7 +2,6 @@
  * angular-websql
  * Helps you generate and run websql queries with angular services.
  * © MIT License
- * @version  1.0.0
  */
 "use strict";
 angular.module("angular-websql", []).factory("$webSql", [
