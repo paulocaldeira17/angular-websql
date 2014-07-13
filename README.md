@@ -148,3 +148,8 @@ SELECT * FROM user
 Operators
 ---------------------
 Your can use common operators like `=`, `>=`, `<=` and `LIKE`. You can use also `IS NULL` and `NOT NULL` as condition values.
+Changelog
+---------------------
+### v1.0.1
+* escape single quote or double quote value(s)
+* changing callback to angular promise
