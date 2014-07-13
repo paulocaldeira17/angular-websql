@@ -29,7 +29,7 @@ $scope.db = $webSql.openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024);
 
 #### Returns
 An object, containing database operation methods, is returned with ```openDatabase``` method.
-All methods has optional callback parameter which takes query result object as parameter.  
+All methods return a promise which takes query result object as parameter.
 These methods are:  
 - [createTable()](#create-table)  
 - [dropTable()](#drop-table)  
@@ -40,7 +40,7 @@ These methods are:
 
 ## Database Methods
 ### Create Table
-#### `createTable(string tableName, object fields, [callback])`
+#### `createTable(string tableName, object fields)`
 #### Example:
 ```javascript
 createTable('user', {
@@ -69,12 +69,12 @@ createTable('user', {
 })
 ```
 ### Drop Table
-#### `dropTable(string tableName, [callback])`
+#### `dropTable(string tableName)`
 ### Insert
-#### `insert(string tableName, object fields, [callback])`
+#### `insert(string tableName, object fields)`
 #### Example:
 ```javascript 
-$scope.db.insert('user', {"username": 'pc', "password": '1234', 'age': 22}, function(results) {
+$scope.db.insert('user', {"username": 'pc', "password": '1234', 'age': 22}).then(function(results) {
   console.log(results.insertId);
 })
 ```
@@ -82,7 +82,7 @@ $scope.db.insert('user', {"username": 'pc', "password": '1234', 'age': 22}, func
 INSERT INTO user (username, password, age) VALUES('pc', '1234', 22)
 ```
 ### Update
-#### `update(string tableName, object fields, [callback])`
+#### `update(string tableName, object fields)`
 #### Examples:
 ```javascript 
 $scope.db.update("user", {"username": 'paulo.caldeira'}, {
@@ -106,7 +106,7 @@ $scope.db.update("user", {"age": 23}, {
 UPDATE user SET age=23 WHERE username LIKE 'paulo.*' AND age=22
 ```
 ### Delete
-#### `delete(string tableName, object where, [callback])`
+#### `delete(string tableName, object where)`
 ```javascript 
 $scope.db.del("user", {"id": 1})
 ```
@@ -114,7 +114,7 @@ $scope.db.del("user", {"id": 1})
 DELETE user WHERE id=1
 ```
 ### Select
-#### `select(string tableName, object where, [callback])`
+#### `select(string tableName, object where)`
 ```javascript 
 $scope.db.select("user", {
   "age": {
@@ -122,26 +122,24 @@ $scope.db.select("user", {
     "union":'AND'
   },
   "username":'IS NOT NULL'
-}, function(results) {
+}).then(function(results) {
   $scope.users = [];
   for(i=0; i < results.rows.length; i++){
     $scope.users.push(results.rows.item(i));
   }
-  $scope.$apply();
 })
 ```
 ```sql 
 SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL
 ```
 ### Select All
-#### `selectAll(string tableName, [callback])`
+#### `selectAll(string tableName)`
 ```javascript 
-$scope.db.selectAll("user", function(results) {
+$scope.db.selectAll("user").then(function(results) {
   $scope.users = [];
   for(var i=0; i < results.rows.length; i++){
     $scope.users.push(results.rows.item(i));
   }
-  $scope.$apply();
 })
 ```
 ```sql 
