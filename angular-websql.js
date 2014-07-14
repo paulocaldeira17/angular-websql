@@ -25,7 +25,7 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 		  });
                 });
 
-		return deferred.promise;;
+		return deferred.promise;
               },
               insert: function(c, e) {
                 var f = "INSERT INTO `{tableName}` ({fields}) VALUES({values});";
