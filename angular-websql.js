@@ -9,7 +9,8 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
       return {
         openDatabase: function(dbName, version, desc, size) {
           try {
-            var db = openDatabase(dbName, version, desc, size);
+            var db = openDatabase(dbName, version, desc, size),
+	    models = {};
             if (typeof(openDatabase) == "undefined")
               throw "Browser does not support web sql";
             return {
@@ -25,7 +26,7 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 		  });
                 });
 
-		return deferred.promise;;
+		return deferred.promise;
               },
               insert: function(c, e) {
                 var f = "INSERT INTO `{tableName}` ({fields}) VALUES({values});";
@@ -144,6 +145,110 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
               dropTable: function(a) {
                 return this.executeQuery("DROP TABLE IF EXISTS `" + a + "`; ", []);
               },
+	      /**
+	       * lodash bind function
+	       * @url http://lodash.com/docs#bind
+	       * @api private
+	       */
+	      _bind : function bind(func, context) {
+		var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+		var slice            = ArrayProto.slice;
+		var nativeBind         = FuncProto.bind;
+
+		var args, bound;
+		if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+		if (!isFunction(func)) throw new TypeError;
+		args = slice.call(arguments, 2);
+		return bound = function() {
+		  if (!(this instanceof bound)) return func.apply(context, args.concat(slice.call(arguments)));
+		  ctor.prototype = func.prototype;
+		  var self = new ctor;
+		  ctor.prototype = null;
+		  var result = func.apply(self, args.concat(slice.call(arguments)));
+		  if (Object(result) === result) return result;
+		  return self;
+		};
+	      },
+
+	      /**
+	       * Store model for further use
+	       * @param {String} {String} {Array} [{Array}]
+	       */
+	      addModel: function(name, table, oneToMany, manyToOne){
+		var model = {};
+
+		model.oneToMany = Object.prototype.toString.call(oneToMany) === '[object Array]'
+		  ? oneToMany : [];
+		model.manyToOne = Object.prototype.toString.call(manyToOne) === '[object Array]'
+		  ? manyToOne : [];
+		model.table = table;
+
+		models[name] = model;
+	      },
+
+	      /**
+	       * Select model from database
+	       * @param {String} {Object}
+	       * @return $q promise
+	       */
+	      selectModel: function(name, where){
+		var deferred = $q.defer(),
+		model = models[name],
+		modelResult = [],
+		that = this;
+
+		this.select(model.table, where).then(function(res){
+		  var subQueryPromises = [];
+
+		  for(i = 0; i < res.rows.length; i++){
+		    father = res.rows.item(i);
+		    modelResult.push(father);
+
+		    /* query and inject one to many */
+		    for (j = 0; j < model.oneToMany.length; j++){
+		      var child = model.oneToMany[j],
+		      where = {};
+
+		      where[child.foreignKey] = father[child.primaryKey];
+		      var select = that.select(child["table"], where);
+
+		      select.then(that._bind(function(subResults){
+			this.father[this.insertName] = [];
+			for (k = 0; k < subResults.rows.length; k++){
+			  this.father[this.insertName].push(subResults.rows.item(k));
+			}
+		      }, {father : father, insertName : child.insertName}));;
+
+		      subQueryPromises.push(select);
+		    }
+
+		    /* query and inject one to many */
+		    for (j = 0; j < model.manyToOne.length; j++){
+		      var child = model.manyToOne[j],
+		      where = {};
+
+		      where[child.primaryKey] = father[child.foreignKey];
+		      var select = that.select(child["table"], where);
+
+		      select.then(that._bind(function(subResults){
+			if (subResults.rows.length > 0){
+			  this.father[this.insertName] = subResults.rows.item(0);
+			}
+		      }, {father : father, insertName : child.insertName}));
+
+		      subQueryPromises.push(select);
+		    }
+                  }
+
+		  /* when all sub-queries completed fire main pomise */
+		  $q.all(subQueryPromises).then(function(){
+		    deferred.resolve(modelResult);
+		  });
+
+		});
+
+		return deferred.promise;
+	      },
             };
           } catch (err) {
             console.error(err);
