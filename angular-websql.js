@@ -48,7 +48,7 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
                 var e = "";
                 var v = [];
                 for (var d in g) {
-                  e += "`" + d + "`= ?";
+                  e += (Object.keys(g)[Object.keys(g).length - 1] == d) ? "`" + d + "`= ?" : "`" + d + "`= ?,";
                   v.push(g[d]);
                 }
                 var a = this.whereClause(c);
