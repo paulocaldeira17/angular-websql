@@ -160,6 +160,7 @@ Special thanks to these contributors:
 Changelog
 ---------------------
 ### v1.0.2
+* prevent empty operator in where clause
 * insert method update with replace flag to "INSERT OR REPLACE" queries
 
 ### v1.0.1

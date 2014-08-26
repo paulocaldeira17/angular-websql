@@ -88,10 +88,14 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 												(typeof b[c]["union"] === "undefined") ? 
 													(typeof b[c]["value"] === "string" && b[c]["value"].match(/NULL/ig)) ? 
 														"`" + c + "` " + b[c]["value"] : 
-														"`" + c + "` " + b[c]["operator"] + " ? " : 
+														(typeof b[c]["operator"] !== "undefined")?
+															"`" + c + "` " + b[c]["operator"] + " ? " : 
+															"`" + c + "` = ?" : 
 													(typeof b[c]["value"] === "string" && b[c]["value"].match(/NULL/ig)) ? 
 															"`" + c + "` " + b[c]["value"] + " " + b[c]["union"] + " " : 
-															"`" + c + "` " + b[c]["operator"] + " ? " + b[c]["union"] + " " :
+															(typeof b[c]["operator"] !== "undefined") ? 
+																"`" + c + "` " + b[c]["operator"] + " ? " + b[c]["union"] + " " : 
+																"`" + c + "` = ? " + b[c]["union"] + " " : 
 												(typeof b[c] === "string" && b[c].match(/NULL/ig)) ? 
 													"`" + c + "` " + b[c] : 
 													"`" + c + "` = ?"
