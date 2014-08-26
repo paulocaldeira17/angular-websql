@@ -71,7 +71,7 @@ createTable('user', {
 ### Drop Table
 #### `dropTable(string tableName)`
 ### Insert
-#### `insert(string tableName, object fields)`
+#### `insert(string tableName, object fields, boolean replace)`
 #### Example:
 ```javascript 
 $scope.db.insert('user', {"username": 'pc', "password": '1234', 'age': 22}).then(function(results) {
@@ -148,8 +148,20 @@ SELECT * FROM user
 Operators
 ---------------------
 Your can use common operators like `=`, `>=`, `<=` and `LIKE`. You can use also `IS NULL` and `NOT NULL` as condition values.
+
+Contributors
+---------------------
+Thanks to github community, our libraries do not depend only from our work but also from work of contributors. I want to thank all those who in any way participated in the development of this library. 
+
+Special thanks to these contributors:
+* @gfauchart 
+* @dbtek
+
 Changelog
 ---------------------
+### v1.0.2
+* insert method update with replace flag to "INSERT OR REPLACE" queries
+
 ### v1.0.1
 * escape single quote or double quote value(s)
 * changing callback to angular promise
