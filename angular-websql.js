@@ -59,8 +59,13 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 							}), v.concat(a.p));
 						},
 						del: function(b, c) {
-							var d = "DELETE FROM `{tableName}` WHERE {where}; ";
-							var a = this.whereClause(c);
+							if (c){
+								var d = "DELETE FROM `{tableName}` WHERE {where}; ";
+								var a = this.whereClause(c);
+							}else{
+								var d = "DELETE FROM `{tableName}`;";
+								var a = {p : []};
+							}
 							return this.executeQuery(this.replace(d, {
 								"{tableName}": b,
 								"{where}": a.w
