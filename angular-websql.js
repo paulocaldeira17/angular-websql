@@ -26,6 +26,28 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 							});
 							return deferred.promise;
 						},
+						executeQueries: function(queries, values) {
+                            var deferred = $q.defer();
+                            db.transaction(function(tx) {
+								for(var idx = 0; idx < queries.length; ++idx) {
+                                    console.log(queries[idx])
+                                    console.log(values[idx])
+                                    tx.executeSql(queries[idx], values[idx], function(tx, results) {
+                                    }, function(tx, e){
+                                        console.log("There has been an error: " + e.message);
+                                        deferred.reject();
+                                    });
+                                }
+							},
+                            function(tx, err) {
+                                console.log("There has been an error: " + err);
+                                deferred.reject();
+                            },
+                            function(tx, err) {
+                                deferred.resolve(err);
+                            });
+							return deferred.promise;
+						},
 						insert: function(c, e, r) {
 							var f = (typeof r === "boolean" && r) ? "INSERT OR REPLACE" : "INSERT";
 							f += " INTO `{tableName}` ({fields}) VALUES({values});";
