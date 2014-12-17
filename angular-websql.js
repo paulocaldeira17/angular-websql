@@ -79,8 +79,31 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 								"{where}": a.w
 							}), a.p);
 						},
-						selectAll: function(a) {
-							return this.executeQuery("SELECT * FROM `" + a + "`; ", []);
+						selectLimit: function(table, where, limit) {
+							var d = "SELECT * FROM `{tableName}` WHERE {where} LIMIT {limit}; ";
+							var a = this.whereClause(where);
+                            if (isNaN(limit))
+                            {
+                                throw "Limit must be a number.";
+                            }
+							return this.executeQuery(this.replace(d, {
+								"{tableName}": table,
+								"{where}": a.w,
+                                "{limit}": limit
+							}), a.p);
+						},
+						selectAll: function(table) {
+							return this.executeQuery("SELECT * FROM `" + table + "`; ", []);
+						},
+						selectAllLimit: function(table, limit) {
+                            if (isNaN(limit))
+                            {
+                                throw "Limit must be a number.";
+                            }
+							return this.executeQuery("SELECT * FROM `" + table + "` LIMIT " + limit + "; ", []);
+						},
+						selectOne: function(table) {
+							return this.selectAllLimit(table,1);
 						},
 						whereClause: function(b) {
 							var a = "",
