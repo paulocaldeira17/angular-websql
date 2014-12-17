@@ -158,6 +158,50 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 							}
 							return a;
 						},
+                        addColumns: function(tableName, newColumns) {
+                            var queries = [];
+                            var values = [];
+                            console.log(newColumns)
+                            for(var e in newColumns) {
+                                console.log(e)
+                                var b = "ALTER TABLE `{tableName}` ADD COLUMN {fields}; ";
+                                var l = "{type} {null}";
+                                var c = [];
+                                var a = "`" + e + "` ";
+                                if(typeof newColumns[e]["null"]==="undefined") newColumns[e]["null"]="NULL";
+								for (var k in newColumns[e]) {
+                                    console.log(k)                                
+									l = l.replace(new RegExp("{" + k + "}", "ig"), newColumns[e][k])
+								}
+                                a += l;
+								if (typeof newColumns[e]["default"] !== "undefined") {
+									a += " DEFAULT " + newColumns[e]["default"]
+								}
+								if (typeof newColumns[e]["primary"] !== "undefined") {
+									a += " PRIMARY KEY"
+								}
+								if (typeof newColumns[e]["auto_increment"] !== "undefined") {
+									a += " AUTOINCREMENT"
+								}
+								if (Object.keys(newColumns)[Object.keys(newColumns).length - 1] != e) {
+									a += ","
+								}
+								if (typeof newColumns[e]["primary"] !== "undefined" && newColumns[e]["primary"]) {
+									c.push(e)
+								}
+                                
+                                var d = {
+                                    tableName: tableName,
+                                    fields: a
+                                };
+                                for (var f in d) {
+                                    b = b.replace(new RegExp("{" + f + "}", "ig"), d[f])
+                                }
+                                queries.push(b);
+                                values.push([]);
+                            }                            
+                            return this.executeQueries(queries, values);                            
+                        },
 						createTable: function(j, g) {
 							var b = "CREATE TABLE IF NOT EXISTS `{tableName}` ({fields}); ";
 							var c = [];
@@ -195,6 +239,33 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 							}
 							return this.executeQuery(b, []);
 						},
+                        createOrAlterTable: function(tableName, iColumns) {
+							var self = this;
+                            return self.select("sqlite_master", {
+                                "type": {
+                                    "value": 'table',
+                                    "union": 'AND'
+                                },
+                                "tbl_name": tableName
+                            }).then(function(results) {
+                                if(results.rows.length <= 0) {
+                                    return self.createTable(tableName, iColumns)
+                                } else {
+                                    for(var i=0; i < results.rows.length; ++i) {
+                                        var sql = results.rows.item(i).sql
+                                        var regexp = new RegExp("`[^`]+`", "ig")
+                                        var currentColumns = sql.replace(/(CREATE TABLE `.*` \(|\))/gi, "").match(regexp)                                        
+                                        var newColumns = {};
+                                        for(var newColIdx in iColumns) {                                            
+                                            if(currentColumns.indexOf("`" + newColIdx + "`") == -1) {
+                                                newColumns[newColIdx] = iColumns[newColIdx];
+                                            }
+                                        }
+                                        return self.addColumns(tableName, newColumns)                                    
+                                    }
+                                }
+                            })
+                        },
 						dropTable: function(a) {
 							return this.executeQuery("DROP TABLE IF EXISTS `" + a + "`; ", []);
 						},
