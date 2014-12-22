@@ -169,8 +169,6 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 								"{tableName}": table,
 								"{groupby}": group
 							}), []);
-                                                        
-							//return this.executeQuery("SELECT * FROM `" + table + "`; ", []);
 						},
 						selectAllLimit: function(table, limit) {
                             if (isNaN(limit))
@@ -222,7 +220,7 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
                                 var c = [];
                                 var a = "`" + e + "` ";
                                 if(typeof newColumns[e]["null"]==="undefined") newColumns[e]["null"]="NULL";
-								for (var k in newColumns[e]) {                  
+								for (var k in newColumns[e]) {
 									l = l.replace(new RegExp("{" + k + "}", "ig"), newColumns[e][k])
 								}
                                 a += l;
@@ -240,8 +238,7 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 								}
 								if (typeof newColumns[e]["primary"] !== "undefined" && newColumns[e]["primary"]) {
 									c.push(e)
-								}
-                                
+								}                                
                                 var d = {
                                     tableName: tableName,
                                     fields: a
@@ -306,7 +303,7 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
                                     for(var i=0; i < results.rows.length; ++i) {
                                         var sql = results.rows.item(i).sql
                                         var regexp = new RegExp("`[^`]+`", "ig")
-                                        var currentColumns = sql.replace(/(CREATE TABLE `.*` \(|\))/gi, "").match(regexp)
+                                        var currentColumns = sql.replace(/(CREATE TABLE `.*` \(|\))/gi, "").match(regexp)                                        
                                         var newColumns = {};
                                         for(var newColIdx in iColumns) {                                            
                                             if(currentColumns.indexOf("`" + newColIdx + "`") == -1) {
