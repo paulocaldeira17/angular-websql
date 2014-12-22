@@ -189,7 +189,7 @@ $scope.db.select("user", {
 ```sql 
 SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL
 ```
-### Select with limit
+### Select limit
 #### `selectLimit(string table, object where, int limit)`
 ```javascript 
 $scope.db.selectLimit("user", {
@@ -233,7 +233,7 @@ $scope.db.selectAll("user", ["age", "username"]).then(function(results) {
 ```sql 
 SELECT * FROM user GROUP BY age, username
 ```
-### Select All with limit
+### Select All limit
 #### `selectAllLimit(string tableName, int limit)`
 ```javascript 
 $scope.db.selectAllLimit("user", 10).then(function(results) {
