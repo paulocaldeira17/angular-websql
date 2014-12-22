@@ -32,11 +32,15 @@ An object, containing database operation methods, is returned with ```openDataba
 All methods return a promise which takes query result object as parameter.
 These methods are:  
 - [createTable()](#create-table)  
+- [createOrAlterTable()](#create-or-alter-table)  
 - [dropTable()](#drop-table)  
 - [update()](#update)  
 - [delete()](#delete)  
 - [select()](#select)  
+- [selectLimit()](#select-limit)  
 - [selectAll()](#select-all)  
+- [selectAllLimit()](#select-all-limit)  
+- [selectOne()](#select-one)  
 
 ## Database Methods
 ### Create Table
@@ -65,6 +69,38 @@ createTable('user', {
   },
   "age": {
     "type": "INTEGER"
+  }
+})
+```
+### Create or Alter Table
+#### `createOrAlterTable(string tableName, object fields)`
+#### Example:
+```javascript
+createTable('user', {
+  "id":{
+    "type": "INTEGER",
+    "null": "NOT NULL", // default is "NULL" (if not defined)
+    "primary": true, // primary
+    "auto_increment": true // auto increment
+  },
+  "created":{
+    "type": "TIMESTAMP",
+    "null": "NOT NULL",
+    "default": "CURRENT_TIMESTAMP" // default value
+  },
+  "username":{
+    "type": "TEXT",
+    "null": "NOT NULL"
+  },
+  "password": {
+    "type": "TEXT",
+    "null": "NOT NULL"
+  },
+  "age": {
+    "type": "INTEGER"
+  },
+  "newAddedField": {
+    "type": "TEXT"
   }
 })
 ```
@@ -106,7 +142,7 @@ $scope.db.update("user", {"age": 23}, {
 UPDATE user SET age=23 WHERE username LIKE 'paulo.*' AND age=22
 ```
 ### Delete
-#### `delete(string tableName, [object where])`
+#### `del(string tableName, object where)`
 ```javascript 
 $scope.db.del("user", {"id": 1})
 ```
@@ -132,6 +168,25 @@ $scope.db.select("user", {
 ```sql 
 SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL
 ```
+### Select with limit
+#### `selectLimit(string table, object where, int limit)`
+```javascript 
+$scope.db.selectLimit("user", {
+  "age": {
+    "value":'IS NULL',
+    "union":'AND'
+  },
+  "username":'IS NOT NULL'
+}, 10).then(function(results) {
+  $scope.users = [];
+  for(i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL LIMIT 10
+```
 ### Select All
 #### `selectAll(string tableName)`
 ```javascript 
@@ -144,6 +199,27 @@ $scope.db.selectAll("user").then(function(results) {
 ```
 ```sql 
 SELECT * FROM user
+```
+### Select All with limit
+#### `selectAllLimit(string tableName, int limit)`
+```javascript 
+$scope.db.selectAllLimit("user", 10).then(function(results) {
+  $scope.users = [];
+  for(var i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user LIMIT 10
+```
+### Select One
+#### `selectOne(string tableName)`
+```javascript 
+$scope.db.selectOne("user")
+```
+```sql 
+SELECT * FROM user LIMIT 1
 ```
 Operators
 ---------------------
