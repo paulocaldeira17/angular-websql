@@ -34,6 +34,8 @@ These methods are:
 - [createTable()](#create-table)  
 - [createOrAlterTable()](#create-or-alter-table)  
 - [dropTable()](#drop-table)  
+- [insert()](#insert)  
+- [bulkInsert()](#bulk-insert)  
 - [update()](#update)  
 - [delete()](#delete)  
 - [select()](#select)  
@@ -117,6 +119,25 @@ $scope.db.insert('user', {"username": 'pc', "password": '1234', 'age': 22}).then
 ```sql 
 INSERT INTO user (username, password, age) VALUES('pc', '1234', 22)
 ```
+### Bulk insert
+#### `bulkInsert(string tableName, [object fields], boolean replace)`
+#### Example:
+```javascript 
+$scope.db.insert('user', [
+	{"username": 'pc1', "password": '1234', 'age': 22},
+	{"username": 'pc2', "password": '5678', 'age': 23},
+	{"username": 'pc3', "password": '9101', 'age': 24},
+	{"username": 'pc4', "password": '1213', 'age': 25},
+]).then(function(results) {
+  console.log(results.insertId);
+})
+```
+```sql 
+INSERT INTO user (username, password, age) VALUES('pc1', '1234', 22)
+INSERT INTO user (username, password, age) VALUES('pc2', '5678', 23)
+INSERT INTO user (username, password, age) VALUES('pc3', '9101', 24)
+INSERT INTO user (username, password, age) VALUES('pc4', '1213', 25)
+```
 ### Update
 #### `update(string tableName, object fields)`
 #### Examples:
@@ -188,7 +209,7 @@ $scope.db.selectLimit("user", {
 SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL LIMIT 10
 ```
 ### Select All
-#### `selectAll(string tableName)`
+#### `selectAll(string tableName, [string column] optionnal)`
 ```javascript 
 $scope.db.selectAll("user").then(function(results) {
   $scope.users = [];
@@ -199,6 +220,18 @@ $scope.db.selectAll("user").then(function(results) {
 ```
 ```sql 
 SELECT * FROM user
+```
+
+```javascript 
+$scope.db.selectAll("user", ["age", "username"]).then(function(results) {
+  $scope.users = [];
+  for(var i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user GROUP BY age, username
 ```
 ### Select All with limit
 #### `selectAllLimit(string tableName, int limit)`
