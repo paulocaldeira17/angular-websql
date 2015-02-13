@@ -106,7 +106,7 @@ $scope.db.update("user", {"age": 23}, {
 UPDATE user SET age=23 WHERE username LIKE 'paulo.*' AND age=22
 ```
 ### Delete
-#### `delete(string tableName, [object where])`
+#### `del(string tableName, [object where])`
 ```javascript 
 $scope.db.del("user", {"id": 1})
 ```
