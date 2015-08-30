@@ -6,7 +6,7 @@
   "license": "MIT",
   "homepage": "https://github.com/paulocaldeira17/angular-websql",
   "dependencies": {
-    "angular": "1.2.x"
+    "angular": ">=1.2.0 <1.5.0"
   },
   "ignore": [
     "**/.*",
