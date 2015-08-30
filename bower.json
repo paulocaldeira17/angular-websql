@@ -1,6 +1,5 @@
 {
   "name": "angular-websql",
-  "version": "1.0.1",
   "description": "Helps you generating websql simple queries without writing any sql code.",
   "author": "Paulo Caldeira",
   "main": "./angular-websql.min.js",
