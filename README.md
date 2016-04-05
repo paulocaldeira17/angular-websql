@@ -7,10 +7,19 @@ Setup
 1. `bower install angular-websql`
 2. Include the `angular-websql.min.js` and angular itself.
 3. Add `angular-websql` as a module dependency to your app.
+```js
+angular.module('yourModule', ['angular-websql']);
+```
 
 Usage
 ---------------------
 1- Add ```$webSql``` provider to a controller.  
+```js
+angular.module('yourModule', ['angular-websql'])
+  .controller('yourController', ['$scope','$webSql', function($scope, $webSql){
+        . . .
+  }]);;
+```
 2- Open a database. See [method](#open-database).  
 3- Use returned database object's methods.
 
