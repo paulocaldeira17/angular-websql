@@ -71,13 +71,25 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 								"{where}": a.w
 							}), a.p);
 						},
-						select: function(b, c) {
-							var d = "SELECT * FROM `{tableName}` WHERE {where}; ";
-							var a = this.whereClause(c);
-							return this.executeQuery(this.replace(d, {
+						select: function(b, c, e, f) {
+                            if(e && f){
+                                var d = "SELECT * FROM `{tableName}` WHERE {where} ORDER by {orderTableName} {sortDirection};";
+                                var a = this.whereClause(c);        
+                                return this.executeQuery(this.replace(d, {
+                                    "{tableName}": b,
+                                    "{where}": a.w,
+                                    "{orderTableName}": e,
+                                    "{sortDirection}": f
+                                }), a.p);                                
+                            }
+                            else{
+                                var d = "SELECT * FROM `{tableName}` WHERE {where}; ";
+                                var a = this.whereClause(c);
+                                return this.executeQuery(this.replace(d, {
 								"{tableName}": b,
 								"{where}": a.w
-							}), a.p);
+							}), a.p);                                
+                            }                            
 						},
 						selectAll: function(a) {
 							return this.executeQuery("SELECT * FROM `" + a + "`; ", []);
