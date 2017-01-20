@@ -4,6 +4,12 @@
  * © MIT License
  * @version 1.0.2
  */
+/**
+ * angular-websql
+ * Helps you generate and run websql queries with angular services.
+ * © MIT License
+ * @version 1.0.2
+ */
 "use strict";
 angular.module("angular-websql", []).factory("$webSql", ["$q",
 	function($q) {
@@ -155,19 +161,26 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
                                 "{limit}": limit
 							}), a.p);
 						},
-						selectAll: function(table, groupby) {
+						selectAll: function(table, options) {
                             var query = "SELECT * FROM `{tableName}` ";
-                            var group = ""
-                            if( typeof groupby !== "undefined" && groupby.length > 0) {
-                                query += " GROUP BY `{groupby}`; "
-                                for(var idx in groupby) {
-                                    group += groupby[idx] + ",";
-                                }
-                                group = group.substring(0, group.length - 1);
+                            var extras = ""
+                            if( typeof options !== "undefined" && options.length > 0) {
+                            	query += " {extras} ";
+                            	for (var sidx in options) {
+                            		extras += " "+options[sidx].operator+" ";
+	                                for(var idx in options[sidx].columns) {
+	                                    extras += "`"+options[sidx].columns[idx] + "`,";
+	                                }
+	                                extras = extras.substring(0, extras.length - 1)+" ";
+	                                if( typeof options[sidx].postOperator !== "undefined"){
+	                                	query += options[sidx].postOperator+" ";
+	                                }
+                            	}
+                                query += ";";
                             }
                             return this.executeQuery(this.replace(query, {
 								"{tableName}": table,
-								"{groupby}": group
+								"{extras}": extras
 							}), []);
 						},
 						selectAllLimit: function(table, limit) {
