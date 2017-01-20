@@ -178,10 +178,6 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
                             	}
                                 query += ";";
                             }
-                            console.log(this.replace(query, {
-								"{tableName}": table,
-								"{extras}": extras
-							}));
                             return this.executeQuery(this.replace(query, {
 								"{tableName}": table,
 								"{extras}": extras
