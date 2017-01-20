@@ -209,7 +209,7 @@ $scope.db.selectLimit("user", {
 SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL LIMIT 10
 ```
 ### Select All
-#### `selectAll(string tableName, [string column] optionnal)`
+#### `selectAll(string tableName, [{operator:"string",postOperator:"string optionnal",columns["string column","string column"]}] Array/Object)`
 ```javascript 
 $scope.db.selectAll("user").then(function(results) {
   $scope.users = [];
@@ -223,7 +223,7 @@ SELECT * FROM user
 ```
 
 ```javascript 
-$scope.db.selectAll("user", ["age", "username"]).then(function(results) {
+$scope.db.selectAll("user", [{operator:"GROUP BY",columns:['age','username']}]).then(function(results) {
   $scope.users = [];
   for(var i=0; i < results.rows.length; i++){
     $scope.users.push(results.rows.item(i));
@@ -232,6 +232,22 @@ $scope.db.selectAll("user", ["age", "username"]).then(function(results) {
 ```
 ```sql 
 SELECT * FROM user GROUP BY age, username
+```
+
+```javascript 
+$scope.db.selectAll("user", [
+				{operator:"GROUP BY",columns:['age']},
+				{operator:"ORDER BY",postOperator:'DESC',columns:['username']},
+			    ])
+.then(function(results) {
+  $scope.users = [];
+  for(var i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user GROUP BY age ORDER BY username DESC
 ```
 ### Select All limit
 #### `selectAllLimit(string tableName, int limit)`
