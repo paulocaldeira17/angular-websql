@@ -29,7 +29,10 @@ angular.module("angular-websql", []).factory("$webSql", ["$q",
 									console.log("There has been an error: " + e.message);
 									deferred.reject();
 								});
-							});
+						    }, function(err){
+                                console.log("Trsaction failed: " + err);
+                                deffered.reject();
+                            };
 							return deferred.promise;
 						},
 						executeQueries: function(queries, values) {
