@@ -41,11 +41,17 @@ An object, containing database operation methods, is returned with ```openDataba
 All methods return a promise which takes query result object as parameter.
 These methods are:  
 - [createTable()](#create-table)  
+- [createOrAlterTable()](#create-or-alter-table)  
 - [dropTable()](#drop-table)  
+- [insert()](#insert)  
+- [bulkInsert()](#bulk-insert)  
 - [update()](#update)  
 - [delete()](#delete)  
 - [select()](#select)  
+- [selectLimit()](#select-limit)  
 - [selectAll()](#select-all)  
+- [selectAllLimit()](#select-all-limit)  
+- [selectOne()](#select-one)  
 
 ## Database Methods
 ### Create Table
@@ -77,6 +83,38 @@ createTable('user', {
   }
 })
 ```
+### Create or Alter Table
+#### `createOrAlterTable(string tableName, object fields)`
+#### Example:
+```javascript
+createTable('user', {
+  "id":{
+    "type": "INTEGER",
+    "null": "NOT NULL", // default is "NULL" (if not defined)
+    "primary": true, // primary
+    "auto_increment": true // auto increment
+  },
+  "created":{
+    "type": "TIMESTAMP",
+    "null": "NOT NULL",
+    "default": "CURRENT_TIMESTAMP" // default value
+  },
+  "username":{
+    "type": "TEXT",
+    "null": "NOT NULL"
+  },
+  "password": {
+    "type": "TEXT",
+    "null": "NOT NULL"
+  },
+  "age": {
+    "type": "INTEGER"
+  },
+  "newAddedField": {
+    "type": "TEXT"
+  }
+})
+```
 ### Drop Table
 #### `dropTable(string tableName)`
 ### Insert
@@ -89,6 +127,25 @@ $scope.db.insert('user', {"username": 'pc', "password": '1234', 'age': 22}).then
 ```
 ```sql 
 INSERT INTO user (username, password, age) VALUES('pc', '1234', 22)
+```
+### Bulk insert
+#### `bulkInsert(string tableName, [object fields], boolean replace)`
+#### Example:
+```javascript 
+$scope.db.insert('user', [
+	{"username": 'pc1', "password": '1234', 'age': 22},
+	{"username": 'pc2', "password": '5678', 'age': 23},
+	{"username": 'pc3', "password": '9101', 'age': 24},
+	{"username": 'pc4', "password": '1213', 'age': 25},
+]).then(function(results) {
+  console.log(results.insertId);
+})
+```
+```sql 
+INSERT INTO user (username, password, age) VALUES('pc1', '1234', 22)
+INSERT INTO user (username, password, age) VALUES('pc2', '5678', 23)
+INSERT INTO user (username, password, age) VALUES('pc3', '9101', 24)
+INSERT INTO user (username, password, age) VALUES('pc4', '1213', 25)
 ```
 ### Update
 #### `update(string tableName, object fields)`
@@ -141,8 +198,27 @@ $scope.db.select("user", {
 ```sql 
 SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL
 ```
+### Select limit
+#### `selectLimit(string table, object where, int limit)`
+```javascript 
+$scope.db.selectLimit("user", {
+  "age": {
+    "value":'IS NULL',
+    "union":'AND'
+  },
+  "username":'IS NOT NULL'
+}, 10).then(function(results) {
+  $scope.users = [];
+  for(i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user WHERE age IS NULL AND username IS NOT NULL LIMIT 10
+```
 ### Select All
-#### `selectAll(string tableName)`
+#### `selectAll(string tableName, [{operator:"string",postOperator:"string optionnal",columns["string column","string column"]}] Array/Object)`
 ```javascript 
 $scope.db.selectAll("user").then(function(results) {
   $scope.users = [];
@@ -153,6 +229,55 @@ $scope.db.selectAll("user").then(function(results) {
 ```
 ```sql 
 SELECT * FROM user
+```
+
+```javascript 
+$scope.db.selectAll("user", [{operator:"GROUP BY",columns:['age','username']}]).then(function(results) {
+  $scope.users = [];
+  for(var i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user GROUP BY age, username
+```
+
+```javascript 
+$scope.db.selectAll("user", [
+				{operator:"GROUP BY",columns:['age']},
+				{operator:"ORDER BY",postOperator:'DESC',columns:['username']},
+			    ])
+.then(function(results) {
+  $scope.users = [];
+  for(var i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user GROUP BY age ORDER BY username DESC
+```
+### Select All limit
+#### `selectAllLimit(string tableName, int limit)`
+```javascript 
+$scope.db.selectAllLimit("user", 10).then(function(results) {
+  $scope.users = [];
+  for(var i=0; i < results.rows.length; i++){
+    $scope.users.push(results.rows.item(i));
+  }
+})
+```
+```sql 
+SELECT * FROM user LIMIT 10
+```
+### Select One
+#### `selectOne(string tableName)`
+```javascript 
+$scope.db.selectOne("user")
+```
+```sql 
+SELECT * FROM user LIMIT 1
 ```
 Operators
 ---------------------
